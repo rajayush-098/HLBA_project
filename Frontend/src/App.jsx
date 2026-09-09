@@ -117,17 +117,17 @@ function App() {
       return "Please enter a location or village.";
     }
 
-    const marginCapital = Number(formData.investment);
-const monthlyRevenue = Number(formData.monthly_revenue);
-const monthlyExpenses = Number(formData.monthly_expenses);
+    const investment = Number(formData.investment);
+    const monthlyRevenue = Number(formData.monthly_revenue);
+    const monthlyExpenses = Number(formData.monthly_expenses);
 
-if (
-  formData.investment === "" ||
-  !Number.isFinite(marginCapital) ||
-  marginCapital <= 0
-) {
-  return "Available margin capital must be greater than ₹0.";
-}
+    if (
+      formData.investment === "" ||
+      !Number.isFinite(investment) ||
+      investment <= 0
+    ) {
+      return "Available margin capital must be greater than ₹0.";
+    }
 
     if (
       formData.monthly_revenue === "" ||
@@ -540,10 +540,10 @@ if (
               </div>
 
 
-              {/* AVAILABLE MARGIN CAPITAL */}
+              {/* INVESTMENT */}
 
-<div className="input-group">
-  <label>Available Margin Capital (₹)</label>
+              <div className="input-group">
+                <label>Available Margin Capital (₹)</label>
 
                 <input
                   type="number"
@@ -863,6 +863,112 @@ if (
             </div>
 
 
+            {/* ================= MARKET REACH ================= */}
+
+            <div className="dashboard-card full-width">
+
+              <div className="card-title">
+                <span className="icon">🗺️</span>
+
+                <div>
+                  <h3>Market Reach</h3>
+
+                  <p>
+                    Hyper-local service area and distribution channels
+                  </p>
+                </div>
+              </div>
+
+              <div className="loan-grid">
+
+                <div>
+                  <span>Primary Radius</span>
+                  <strong>
+                    {result.hyper_local_profile?.market_reach
+                      ?.primary_radius_km != null
+                      ? `${result.hyper_local_profile.market_reach.primary_radius_km} km`
+                      : "N/A"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Extended Radius</span>
+                  <strong>
+                    {result.hyper_local_profile?.market_reach
+                      ?.extended_radius_km != null
+                      ? `${result.hyper_local_profile.market_reach.extended_radius_km} km`
+                      : "N/A"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Market Reach Type</span>
+                  <strong>
+                    {result.hyper_local_profile?.market_reach?.reach_type ??
+                      "N/A"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Consumer Data Status</span>
+                  <strong>
+                    {result.hyper_local_profile?.market_reach
+                      ?.consumer_base_status ?? "N/A"}
+                  </strong>
+                </div>
+
+              </div>
+
+              <div className="data-list">
+
+                <div className="data-row">
+                  <span>Consumer Base</span>
+                  <strong>
+                    {result.hyper_local_profile?.market_reach
+                      ?.consumer_base ?? "N/A"}
+                  </strong>
+                </div>
+
+                <div className="data-row">
+                  <span>Data Source</span>
+                  <strong>
+                    {result.hyper_local_profile?.market_reach
+                      ?.data_source ?? "N/A"}
+                  </strong>
+                </div>
+
+                <div className="data-row">
+                  <span>Confidence</span>
+                  <strong>
+                    {result.hyper_local_profile?.market_reach?.confidence ??
+                      "N/A"}
+                  </strong>
+                </div>
+
+                <div className="local-summary">
+                  {result.hyper_local_profile?.market_reach
+                    ?.reach_assessment ??
+                    "No market reach assessment available."}
+                </div>
+
+              </div>
+
+              <h4>Primary Distribution Channels</h4>
+
+              <ul className="professional-list">
+                {(result.hyper_local_profile?.market_reach
+                  ?.distribution_channels ?? []).length > 0
+                  ? result.hyper_local_profile.market_reach.distribution_channels.map(
+                      (channel, index) => (
+                        <li key={index}>{channel}</li>
+                      )
+                    )
+                  : <li>No distribution channels available.</li>}
+              </ul>
+
+            </div>
+
+
             {/* ================= RECOMMENDATION ================= */}
 
             <div className="recommendation-card">
@@ -939,6 +1045,17 @@ if (
                   <strong>
                     {formatCurrency(
                       result.scheme_analysis?.eligible_loan
+                    )}
+                  </strong>
+                </div>
+
+
+                <div>
+                  <span>Maximum Loan (90%)</span>
+
+                  <strong>
+                    {formatCurrency(
+                      result.scheme_analysis?.maximum_loan
                     )}
                   </strong>
                 </div>
@@ -1050,12 +1167,101 @@ if (
                   </strong>
                 </div>
 
+                <div>
+                  <span>Moratorium</span>
+
+                  <strong>
+                    {result.loan_affordability?.moratorium_months != null
+                      ? `${result.loan_affordability.moratorium_months} months`
+                      : "N/A"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Repayment Months</span>
+
+                  <strong>
+                    {result.loan_affordability?.repayment_months != null
+                      ? `${result.loan_affordability.repayment_months} months`
+                      : "N/A"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Monthly Operational Cost</span>
+
+                  <strong>
+                    {formatCurrency(
+                      result.loan_affordability?.monthly_operational_cost
+                    )}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Estimated Working Capital</span>
+
+                  <strong>
+                    {formatCurrency(
+                      result.loan_affordability?.estimated_working_capital
+                    )}
+                  </strong>
+                </div>
+
               </div>
 
 
               <div className="local-summary">
                 {result.loan_affordability?.affordability_message ??
                   "No affordability information available."}
+              </div>
+
+
+              {/* ================= QUARTERLY REPAYMENT SCHEDULE ================= */}
+
+              <h4>Quarterly Repayment Schedule</h4>
+
+              <div className="table-wrapper">
+
+                <table>
+
+                  <thead>
+                    <tr>
+                      <th>Quarter</th>
+                      <th>Months</th>
+                      <th>Phase</th>
+                      <th>EMI</th>
+                      <th>Interest</th>
+                      <th>Principal</th>
+                      <th>Outstanding</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {(result.loan_affordability?.quarterly_repayment_schedule ?? []).length > 0 ? (
+                      result.loan_affordability.quarterly_repayment_schedule.map(
+                        (item, index) => (
+                          <tr key={index}>
+                            <td>{item.quarter}</td>
+                            <td>{item.months}</td>
+                            <td>{item.phase}</td>
+                            <td>{formatCurrency(item.emi_total)}</td>
+                            <td>{formatCurrency(item.interest_total)}</td>
+                            <td>{formatCurrency(item.principal_total)}</td>
+                            <td>{formatCurrency(item.outstanding_principal)}</td>
+                          </tr>
+                        )
+                      )
+                    ) : (
+                      <tr>
+                        <td colSpan="7">
+                          No quarterly repayment schedule available.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+
+                </table>
+
               </div>
 
             </div>
@@ -1294,6 +1500,134 @@ if (
 
                 </div>
 
+              )}
+
+            </div>
+
+
+            {/* ================= OPPORTUNITIES + RISKS ================= */}
+
+            <div className="dashboard-card opportunity-analysis-card">
+
+              <div className="card-title">
+                <span className="icon">🎯</span>
+
+                <div>
+                  <h3>Opportunity Analysis</h3>
+                  <p>Potential unserved / underserved local niches</p>
+                </div>
+              </div>
+
+              {result.hyper_local_profile?.opportunity_analysis ? (
+                <>
+                  <div className="analysis-meta-grid">
+                    <div><strong>Status</strong><span>{result.hyper_local_profile.opportunity_analysis.status}</span></div>
+                    <div><strong>Confidence</strong><span>{result.hyper_local_profile.opportunity_analysis.confidence}</span></div>
+                    <div><strong>Validation Priority</strong><span>{result.hyper_local_profile.opportunity_analysis.validation_priority}</span></div>
+                  </div>
+
+                  <h4>Candidate Niches</h4>
+                  <ul className="professional-list">
+                    {(result.hyper_local_profile.opportunity_analysis.identified_niches ?? []).map(
+                      (item, index) => <li key={index}>{item}</li>
+                    )}
+                  </ul>
+
+                  <h4>Evidence Basis</h4>
+                  <ul className="professional-list">
+                    {(result.hyper_local_profile.opportunity_analysis.evidence_basis ?? []).map(
+                      (item, index) => <li key={index}>{item}</li>
+                    )}
+                  </ul>
+
+                  <p className="analysis-note">
+                    <strong>Method:</strong> {result.hyper_local_profile.opportunity_analysis.methodology}
+                  </p>
+                  <p className="analysis-note">
+                    <strong>Validation note:</strong> {result.hyper_local_profile.opportunity_analysis.note}
+                  </p>
+                </>
+              ) : (
+                <p>Opportunity analysis is not available.</p>
+              )}
+
+            </div>
+
+
+            {/* ================= SWOT ANALYSIS ================= */}
+
+            <div className="dashboard-card swot-analysis-card">
+
+              <div className="card-title">
+                <span className="icon">🧭</span>
+
+                <div>
+                  <h3>SWOT Analysis</h3>
+                  <p>Strengths, weaknesses, opportunities and threats for this micro-enterprise</p>
+                </div>
+              </div>
+
+              {result.hyper_local_profile?.swot_analysis ? (
+                <>
+                  <div className="analysis-meta-grid">
+                    <div>
+                      <strong>Budget / Margin Capital</strong>
+                      <span>{formatCurrency(result.hyper_local_profile.swot_analysis.budget_context?.available_margin_capital)}</span>
+                    </div>
+                    <div>
+                      <strong>Monthly Profit</strong>
+                      <span>{formatCurrency(result.hyper_local_profile.swot_analysis.budget_context?.monthly_profit)}</span>
+                    </div>
+                    <div>
+                      <strong>Confidence</strong>
+                      <span>{result.hyper_local_profile.swot_analysis.confidence}</span>
+                    </div>
+                  </div>
+
+                  <div className="swot-grid">
+                    <div className="swot-column">
+                      <h4>💪 Strengths</h4>
+                      <ul className="professional-list">
+                        {(result.hyper_local_profile.swot_analysis.strengths ?? []).map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="swot-column">
+                      <h4>⚠️ Weaknesses</h4>
+                      <ul className="professional-list">
+                        {(result.hyper_local_profile.swot_analysis.weaknesses ?? []).map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="swot-column">
+                      <h4>🚀 Opportunities</h4>
+                      <ul className="professional-list">
+                        {(result.hyper_local_profile.swot_analysis.opportunities ?? []).map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="swot-column">
+                      <h4>🛡️ Threats</h4>
+                      <ul className="professional-list">
+                        {(result.hyper_local_profile.swot_analysis.threats ?? []).map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <p className="analysis-note">
+                    <strong>Method:</strong> {result.hyper_local_profile.swot_analysis.methodology}
+                  </p>
+                </>
+              ) : (
+                <p>SWOT analysis is not available.</p>
               )}
 
             </div>
