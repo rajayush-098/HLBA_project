@@ -960,12 +960,16 @@ def analyze_business(data: BusinessRequest):
         matching_schemes[0] if matching_schemes else None
     )
 
-    # ==================================================
+        # ==================================================
     # STEP 8: HYPER-LOCAL MARKET ANALYSIS
     # ==================================================
 
-    business = data.business_name.lower()
-    category = data.category.lower()
+    business = data.business_name.lower().strip()
+    category = data.category.lower().strip()
+
+    # --------------------------------------------------
+    # LOCAL DEMAND
+    # --------------------------------------------------
 
     if category in [
         "dairy",
@@ -977,19 +981,29 @@ def analyze_business(data: BusinessRequest):
     else:
         local_demand = "Medium"
 
+    # --------------------------------------------------
+    # COMPETITION
+    # --------------------------------------------------
+
     if category in [
         "retail",
         "service",
     ]:
         competition_level = "High"
+
     elif category in [
         "dairy",
         "poultry",
         "agriculture",
     ]:
         competition_level = "Medium"
+
     else:
         competition_level = "Medium"
+
+    # --------------------------------------------------
+    # MARKET POTENTIAL SCORE
+    # --------------------------------------------------
 
     market_potential_score = 50
 
@@ -1000,8 +1014,10 @@ def analyze_business(data: BusinessRequest):
 
     if competition_level == "Low":
         market_potential_score += 15
+
     elif competition_level == "Medium":
         market_potential_score += 5
+
     else:
         market_potential_score -= 10
 
@@ -1010,46 +1026,60 @@ def analyze_business(data: BusinessRequest):
 
     if data.experience == "Experienced":
         market_potential_score += 10
+
     elif data.experience == "Intermediate":
         market_potential_score += 5
 
     market_potential_score = min(
         max(market_potential_score, 0),
-        100,
+        100
     )
+
+    # --------------------------------------------------
+    # LOCATION SUITABILITY
+    # --------------------------------------------------
 
     if market_potential_score >= 80:
         location_suitability = "Highly Suitable"
+
     elif market_potential_score >= 60:
         location_suitability = "Suitable"
+
     else:
         location_suitability = "Needs Improvement"
-            # ==================================================
-    # MARKET REACH ANALYSIS
+
+    # ==================================================
+    # PS REQUIREMENT 1: MARKET REACH
     # ==================================================
 
-    # PS requirement:
-    # Assess the reachable market within approximately
-    # 5 km to 10 km of the selected business location.
+    # The PS requires analysis of the immediate market
+    # within approximately 5–10 km.
+    #
+    # We do not invent population numbers because the
+    # current location_data.py does not contain verified
+    # village-level population data.
 
     market_reach = {
         "primary_radius_km": 5,
         "extended_radius_km": 10,
 
-        # Population/consumer counts require a verified
-        # geographic population dataset. We do not invent
-        # population numbers.
         "consumer_base": (
             "Estimated local consumer base within the "
-            "5–10 km service area; exact population requires "
-            "verified local demographic data."
+            "5–10 km service area. Exact consumer count "
+            "requires verified local demographic data."
         ),
+
+        "reach_type": "Estimated",
 
         "distribution_channels": []
     }
 
-    # Category-specific distribution channels
+    # --------------------------------------------------
+    # DISTRIBUTION CHANNELS
+    # --------------------------------------------------
+
     if category == "dairy":
+
         market_reach["distribution_channels"] = [
             "Nearby households",
             "Local milk collection centers",
@@ -1059,24 +1089,27 @@ def analyze_business(data: BusinessRequest):
         ]
 
     elif category == "poultry":
+
         market_reach["distribution_channels"] = [
             "Nearby households",
             "Local grocery shops",
             "Restaurants and hotels",
-            "Local poultry/meat retailers",
+            "Local poultry retailers",
             "Direct local delivery"
         ]
 
     elif category == "agriculture":
+
         market_reach["distribution_channels"] = [
             "Local markets",
             "Nearby households",
-            "Retailers and wholesalers",
             "Local traders",
+            "Retailers and wholesalers",
             "Direct-to-consumer sales"
         ]
 
     elif category == "fishery":
+
         market_reach["distribution_channels"] = [
             "Local fish markets",
             "Nearby households",
@@ -1086,15 +1119,27 @@ def analyze_business(data: BusinessRequest):
         ]
 
     elif category == "retail":
+
         market_reach["distribution_channels"] = [
             "Nearby households",
             "Walk-in local customers",
             "Local institutions",
-            "WhatsApp/local delivery",
+            "Local delivery",
             "Repeat neighborhood customers"
         ]
 
+    elif category == "service":
+
+        market_reach["distribution_channels"] = [
+            "Nearby households",
+            "Local customers",
+            "Local institutions",
+            "Referral customers",
+            "Digital/local communication channels"
+        ]
+
     else:
+
         market_reach["distribution_channels"] = [
             "Nearby households",
             "Local customers",
@@ -1103,17 +1148,154 @@ def analyze_business(data: BusinessRequest):
             "Direct/local delivery"
         ]
 
-    # Market reach interpretation
+    # --------------------------------------------------
+    # MARKET REACH ASSESSMENT
+    # --------------------------------------------------
+
     if local_demand == "High":
+
         market_reach["reach_assessment"] = (
             "The business has strong potential to serve "
             "customers within the 5–10 km local service area."
         )
+
     else:
+
         market_reach["reach_assessment"] = (
             "The business can serve the local 5–10 km market, "
             "but demand should be validated before expansion."
         )
+
+    # ==================================================
+    # LOCAL OPPORTUNITIES AND RISKS
+    # ==================================================
+
+    if category == "dairy":
+
+        local_opportunities = [
+            "Growing demand for milk and dairy products.",
+            "Opportunity to supply nearby households and milk collection centers.",
+            "Potential for value-added products such as paneer, curd and ghee."
+        ]
+
+        local_risks = [
+            "High cattle feed and healthcare costs.",
+            "Milk price fluctuations.",
+            "Dependence on reliable veterinary services."
+        ]
+
+    elif category == "poultry":
+
+        local_opportunities = [
+            "Regular demand for eggs and poultry products.",
+            "Opportunity to supply local shops and restaurants.",
+            "Potential for gradual expansion after stable operations."
+        ]
+
+        local_risks = [
+            "Disease and infection risks.",
+            "Fluctuating feed costs.",
+            "Changes in local poultry market prices."
+        ]
+
+    elif category == "agriculture":
+
+        local_opportunities = [
+            "Opportunity to select crops suitable for local conditions.",
+            "Potential for direct-to-market selling.",
+            "Scope for value-added agricultural products."
+        ]
+
+        local_risks = [
+            "Weather and seasonal risks.",
+            "Fluctuating crop prices.",
+            "Water availability and irrigation dependency."
+        ]
+
+    elif category == "fishery":
+
+        local_opportunities = [
+            "Growing demand for fresh fish products.",
+            "Opportunity to supply nearby markets and restaurants.",
+            "Potential to select high-demand fish species."
+        ]
+
+        local_risks = [
+            "Water quality and availability risks.",
+            "Fish disease risks.",
+            "Seasonal and market price fluctuations."
+        ]
+
+    elif category == "retail":
+
+        local_opportunities = [
+            "Opportunity to serve daily local consumer needs.",
+            "Potential to build repeat customers.",
+            "Possibility of adding new products based on demand."
+        ]
+
+        local_risks = [
+            "High local competition.",
+            "Inventory management challenges.",
+            "Changing customer preferences."
+        ]
+
+    else:
+
+        local_opportunities = [
+            "Opportunity to identify unmet local customer needs.",
+            "Potential to build a strong local customer base.",
+            "Possibility of gradual expansion after validation."
+        ]
+
+        local_risks = [
+            "Uncertain local demand.",
+            "Competition from existing businesses.",
+            "Need for continuous market monitoring."
+        ]
+
+    # ==================================================
+    # HYPER-LOCAL RECOMMENDATION
+    # ==================================================
+
+    hyper_local_recommendation = (
+        f"{data.business_name} in {data.location}, "
+        f"{data.district}, {data.state} has "
+        f"{location_suitability.lower()} market suitability. "
+        f"Estimated local demand is {local_demand.lower()} "
+        f"with {competition_level.lower()} competition. "
+        f"The recommended service area is approximately "
+        f"5–10 km around the selected location."
+    )
+
+    # ==================================================
+    # HYPER-LOCAL PROFILE
+    # ==================================================
+
+    hyper_local_profile = {
+        "state": data.state,
+        "district": data.district,
+        "location": data.location,
+        "category": data.category,
+
+        "profile_summary": (
+            f"Business analysis prepared for "
+            f"{data.business_name} in {data.location}, "
+            f"{data.district}, {data.state}."
+        ),
+
+        "local_demand": local_demand,
+        "competition_level": competition_level,
+        "market_potential_score": market_potential_score,
+        "location_suitability": location_suitability,
+
+        "market_reach": market_reach,
+
+        "local_opportunities": local_opportunities,
+        "local_risks": local_risks,
+
+        "recommendation": hyper_local_recommendation
+    }
 
     # ==================================================
     # STEP 9: LOCAL OPPORTUNITIES AND RISKS

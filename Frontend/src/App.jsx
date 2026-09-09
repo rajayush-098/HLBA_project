@@ -8,6 +8,7 @@ function App() {
     category: "",
     state: "",
     district: "",
+    block: "",
     location: "",
     experience: "Beginner",
     investment: "",
@@ -40,6 +41,7 @@ function App() {
         ...previousData,
         state: value,
         district: "",
+        block: "",
         location: "",
       }));
       return;
@@ -50,6 +52,7 @@ function App() {
       setFormData((previousData) => ({
         ...previousData,
         district: value,
+        block: "",
         location: "",
       }));
       return;
@@ -106,21 +109,25 @@ function App() {
       return "Please select a district.";
     }
 
+    if (!formData.block.trim()) {
+      return "Please enter a block name.";
+    }
+
     if (!formData.location.trim()) {
       return "Please enter a location or village.";
     }
 
-    const investment = Number(formData.investment);
-    const monthlyRevenue = Number(formData.monthly_revenue);
-    const monthlyExpenses = Number(formData.monthly_expenses);
+    const marginCapital = Number(formData.investment);
+const monthlyRevenue = Number(formData.monthly_revenue);
+const monthlyExpenses = Number(formData.monthly_expenses);
 
-    if (
-      formData.investment === "" ||
-      !Number.isFinite(investment) ||
-      investment <= 0
-    ) {
-    return "Available margin capital must be greater than ₹0.";  
-    }
+if (
+  formData.investment === "" ||
+  !Number.isFinite(marginCapital) ||
+  marginCapital <= 0
+) {
+  return "Available margin capital must be greater than ₹0.";
+}
 
     if (
       formData.monthly_revenue === "" ||
@@ -178,6 +185,7 @@ function App() {
           body: JSON.stringify({
             ...formData,
             business_name: formData.business_name.trim(),
+            block: formData.block.trim(),
             location: formData.location.trim(),
             investment: Number(formData.investment),
             monthly_revenue: Number(formData.monthly_revenue),
@@ -475,6 +483,26 @@ function App() {
               </div>
 
 
+              {/* BLOCK */}
+
+              <div className="input-group">
+                <label>Block</label>
+
+                <input
+                  type="text"
+                  name="block"
+                  placeholder={
+                    formData.district
+                      ? "Enter block name"
+                      : "First select a District"
+                  }
+                  value={formData.block}
+                  onChange={handleChange}
+                  disabled={!formData.district}
+                />
+              </div>
+
+
               {/* LOCATION */}
 
               <div className="input-group">
@@ -519,10 +547,10 @@ function App() {
 
                 <input
                   type="number"
-                  name="AVAILABLE MARGIN CAPITAL"
+                  name="investment"
                   placeholder="100000"
                   min="1"
-                  value={formData["AVAILABLE MARGIN CAPITAL"]}
+                  value={formData.investment}
                   onChange={handleChange}
                 />
               </div>
@@ -606,6 +634,7 @@ function App() {
 
                 <p className="location-text">
                   📍 {result.location ?? formData.location},{" "}
+                  {result.block ?? formData.block},{" "}
                   {result.district ?? formData.district},{" "}
                   {result.state ?? formData.state}
                 </p>
